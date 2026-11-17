@@ -3,6 +3,26 @@
 All notable changes. Newest first. Record what changed, why, and how it was
 verified.
 
+## [0.2.2] — 2026-11-17 — Continuous integration (Claude Code)
+
+### Added
+- GitHub Actions CI (`.github/workflows/ci.yml`, D-011): Windows runner,
+  locked uv sync, pytest, PyInstaller build, smoke test, and the build
+  uploaded as an artifact.
+- `tools/smoke_test.ps1`: launches the packaged exe with throw-away settings,
+  waits for the UI-ready log line, closes it via WM_CLOSE, and fails on early
+  exit, timeout, unclean shutdown or errors in the log.
+
+### Changed
+- Docs: replaced the machine name and user path with generic wording before
+  publishing.
+
+### Verified (locally, before push)
+- `uv sync --locked` OK, 103 tests passed, build OK, smoke test passed
+  (clean WM_CLOSE).
+- Negative check: with CustomTkinter's themes removed from the build, the
+  smoke test failed as intended.
+
 ## [0.2.1] — 2026-11-17 — Live verification, service control, cleanup (Claude Code)
 
 ### Fixed

@@ -219,3 +219,31 @@ The icon is applied in three places:
 
 **Why:** User request for a taskbar and title bar icon. Generating the icon
 from code keeps it reproducible and editable without binary design tools.
+
+---
+
+## D-011 — Continuous integration on GitHub Actions (Windows)
+
+**Status:** Accepted (2026-11-17, requested by the user)
+
+**Decision:** `.github/workflows/ci.yml` runs on `windows-latest` (the app is
+Windows-only), on pushes to `main`, pull requests and manual dispatch:
+1. **test:** `uv sync --locked` + `uv run pytest -v`.
+2. **build** (after test): PyInstaller build, then `tools/smoke_test.ps1`,
+   then upload `dist/LocalAIManager/` as an artifact (14 days).
+
+uv is pinned (`UV_VERSION`) to the local version; dependencies come only from
+`uv.lock`. Workflow permissions are `contents: read`.
+
+The smoke test judges success from the app log, not the exit code: a
+crashing windowed PyInstaller app shows an error dialog and never exits.
+`ui: Settings:` is logged only after the UI is fully built. A deliberately
+broken build (CustomTkinter themes removed) was confirmed to fail the smoke
+test.
+
+**Why:** Catch regressions and packaging breakage (missing data files,
+hidden imports) automatically. The unit tests need no WSL, Ollama or GPU
+because conftest blocks all real external calls.
+
+**Consequences:** CI cannot exercise the real WSL/Ollama/GPU paths; those
+remain manual, live checks (see CHANGELOG "Verified live").

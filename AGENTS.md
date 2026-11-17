@@ -81,8 +81,16 @@ Unit tests must never touch the real system: `tests/conftest.py` blocks real
 uv run pytest -v                                   # unit tests (must all pass)
 uv run python run.py                               # launch dev GUI
 uv run pyinstaller local_ai_manager.spec --noconfirm   # build
+.\tools\smoke_test.ps1                             # launch + close the built exe (same as CI)
 .\dist\LocalAIManager\LocalAIManager.exe           # launch packaged GUI
 ```
+
+**CI** (`.github/workflows/ci.yml`, GitHub Actions, `windows-latest`) runs on
+every push to `main` and every pull request: `uv sync --locked` → pytest →
+PyInstaller build → `tools/smoke_test.ps1` → uploads the build as the
+`LocalAIManager-windows` artifact. Keep `UV_VERSION` in the workflow equal to
+the local uv. If you change dependencies, commit the updated `uv.lock`, or
+`--locked` fails CI. CI must stay green before a change counts as done.
 
 ## 5. Architecture (summary — details in docs/PROJECT_HANDOFF.md)
 

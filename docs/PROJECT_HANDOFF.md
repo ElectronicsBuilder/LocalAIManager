@@ -11,7 +11,8 @@ map.
 | Unit tests | **103 passed**, 0 failed, 0 skipped | `uv run pytest -q` |
 | Live load/unload + Gaming Mode | **Verified** on real Ollama/GPU | See CHANGELOG 0.2.1 |
 | Service control | `wsl -u root` (user-approved) | Stop + start verified live |
-| Version control | Git repo on `main` | `git status` |
+| Version control | Git, `origin` = github.com/ElectronicsBuilder/LocalAIManager | `git status` |
+| CI | GitHub Actions: tests → build → smoke test → artifact | `.github/workflows/ci.yml` |
 | GUI | CustomTkinter 6.0.0, VS Code layout (D-009) | All 4 views captured and reviewed |
 | App icon | Title bar, taskbar, exe file icon (D-010) | ExtractAssociatedIcon + taskbar capture |
 | Dev GUI (`uv run python run.py`) | Launches, shows live data, closes cleanly | Screenshot + WM_CLOSE |
@@ -52,6 +53,8 @@ pyproject.toml, uv.lock      uv project; runtime dep = customtkinter 6.x
 run.py                       launcher (dev + PyInstaller entry)
 local_ai_manager.spec        PyInstaller onedir spec (bundles CTk data + assets, exe icon)
 tools/make_icon.py           regenerates assets/app.ico + app.png (Pillow, dev only)
+tools/smoke_test.ps1         launch/close smoke test of the built exe (CI + local)
+.github/workflows/ci.yml     GitHub Actions CI (D-011)
 src/local_ai_manager/
   theme.py     Dark Modern palette, fonts, MDL2 glyphs, ttk styles
   widgets.py   ActivityBar, SidebarSection/Row, TabStrip, StatusItem, Card, LineChart

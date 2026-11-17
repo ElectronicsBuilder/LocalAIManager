@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_VERSION: "0.13.8"   # keep in step with the local uv (see AGENTS.md)
+
+jobs:
+  test:
+    name: Tests (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Install dependencies (from uv.lock)
+        run: uv sync --locked
+
+      - name: Run tests
+        # All WSL / Ollama / nvidia-smi / registry access is mocked
+        # (tests/conftest.py blocks real subprocess and HTTP calls).
+        run: uv run pytest -v
+
+  build:
+    name: Build and smoke-test exe
+    needs: test
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Install dependencies (from uv.lock)
+        run: uv sync --locked
+
+      - name: Build with PyInstaller
+        run: uv run pyinstaller local_ai_manager.spec --noconfirm
+
+      - name: Smoke-test the packaged app
+        shell: pwsh
+        run: ./tools/smoke_test.ps1
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: LocalAIManager-windows
+          path: dist/LocalAIManager/
+          if-no-files-found: error
+          retention-days: 14
