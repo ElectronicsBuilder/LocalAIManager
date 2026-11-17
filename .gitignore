@@ -1,0 +1,15 @@
+# Python / uv
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Build output (regenerate with: uv run pyinstaller local_ai_manager.spec --noconfirm)
+build/
+dist/
+*.log
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
